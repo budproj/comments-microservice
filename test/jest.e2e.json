@@ -1,0 +1,12 @@
+{
+  "maxConcurrency": 1,
+  "maxWorkers": 1,
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "./e2e/",
+  "testEnvironment": "node",
+  "testRegex": ".test.ts$",
+  "setupFilesAfterEnv": ["<rootDir>/../setup.e2e.ts"],
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  }
+}
