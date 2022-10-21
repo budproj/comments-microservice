@@ -14,5 +14,12 @@ model healthCheck {
   id    String    @db.Uuid    @id   @default(uuid())
 }
 
+model Comment {
+  id    String         @db.Uuid    @id   @default(uuid())
+  entity    String         
+  userId String     @db.Uuid
+  content String
+  createdAt DateTime  @default(now())
+}
 
 // TODO: add models, then run `npx prisma migrate dev --name init`
