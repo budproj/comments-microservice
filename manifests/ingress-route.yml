@@ -12,17 +12,17 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`comments.getbud.co`)
+    - match: Host(`api.getbud.co`) && PathPrefix(`/comments`)
       kind: Rule
       middlewares:
-        - name: websocket-middleware # This allows https upgrade to wss
+        - name: comments-microservice-replace-root-path
       services:
         - name: comments-microservice-stable
           port: 80
-    - match: Host(`comments.canary.getbud.co`)
+    - match: Host(`api.canary.getbud.co`) && PathPrefix(`/comments`)
       kind: Rule
       middlewares:
-        - name: websocket-middleware # This allows https upgrade to wss
+        - name: comments-microservice-replace-root-path
       services:
         - name: comments-microservice-canary
           port: 80
@@ -31,13 +31,12 @@ spec:
     options:
       minVersion: VersionTLS12
 
-
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: websocket-middleware
+  name: comments-microservice-replace-root-path
 spec:
-  headers:
-    customRequestHeaders:
-      X-Forwarded-Proto: "https"
+  replacePathRegex:
+    regex: ^/comments/(.*)
+    replacement: /$1
