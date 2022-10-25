@@ -68,10 +68,6 @@ export class CommentsController {
       },
     });
 
-    if (comments.length < 1) {
-      throw new Error('No comments with this entity were found.');
-    }
-
     return comments;
   }
 }
