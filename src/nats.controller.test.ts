@@ -2,6 +2,7 @@ import { ClientNats, ClientsModule, Transport } from '@nestjs/microservices';
 import { Test } from '@nestjs/testing';
 import { HealthCheckDBService } from './healthcheck.db.service';
 import { NatsController } from './nats.controller';
+import { CommentService } from './services/comments.service';
 
 describe('NATS Controller', () => {
   let natsController: NatsController;
@@ -13,6 +14,7 @@ describe('NATS Controller', () => {
   // Module Setup
   beforeEach(async () => {
     const HealthCheckDBServiceMock = { patch: dbHealthCheckPath };
+    const CommentServiceMock = {};
 
     const moduleRef = await Test.createTestingModule({
       imports: [
@@ -21,10 +23,12 @@ describe('NATS Controller', () => {
         ]),
       ],
       controllers: [NatsController],
-      providers: [HealthCheckDBService],
+      providers: [HealthCheckDBService, CommentService],
     })
       .overrideProvider(HealthCheckDBService)
       .useValue(HealthCheckDBServiceMock)
+      .overrideProvider(CommentService)
+      .useValue(CommentServiceMock)
       .compile();
 
     natsController = moduleRef.get(NatsController);
