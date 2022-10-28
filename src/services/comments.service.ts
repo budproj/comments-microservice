@@ -41,4 +41,22 @@ export class CommentService {
       where,
     });
   }
+
+  async countComments(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.CommentWhereUniqueInput;
+    where?: Prisma.CommentWhereInput;
+    orderBy?: Prisma.CommentOrderByWithRelationInput;
+  }) {
+    const { skip, take, cursor, where, orderBy } = params;
+
+    return this.prisma.comment.count({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+    });
+  }
 }
