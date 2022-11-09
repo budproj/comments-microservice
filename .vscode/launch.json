@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Comments Microservice",
+            "type": "node",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env",
+            "runtimeExecutable": "npm",
+            "port": 9230,
+            "timeout": 15000,
+            "restart": true,
+            "runtimeArgs": [
+                "run-script",
+                "start:debug"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        }
+    ]
+}
