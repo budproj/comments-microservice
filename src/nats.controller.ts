@@ -9,12 +9,13 @@ import {
 import { Comment } from '@prisma/client';
 import { HealthCheckDBService } from './healthcheck.db.service';
 import { CommentService } from './services/comments.service';
+import { MessagingService } from './services/messaging.service';
 
 @Controller()
 export class NatsController {
   constructor(
     private healthCheckDB: HealthCheckDBService,
-    @Inject('NATS_SERVICE') private client: ClientProxy,
+    private messaging: MessagingService,
     private comments: CommentService,
   ) {}
 
@@ -24,7 +25,7 @@ export class NatsController {
   async onHealthCheck(@Payload() data: { id: string; reply: string }) {
     const response = await this.healthCheckDB.patch(data.id);
 
-    this.client.emit(data.reply, true);
+    this.messaging.emit(data.reply, true);
   }
 
   @MessagePattern('comment-count', Transport.NATS)
