@@ -4,28 +4,50 @@ import { CommentService } from '../../services/comments.service';
 import { User } from '../../decorators/user.decorator';
 import { User as UserType } from '../../types/User';
 import { checkIsUuid } from '../../utils/validate-uuid';
+import { MessagingService } from 'src/services/messaging.service';
+
+interface CommentWithUserThatAnswered extends Comment {
+  user?: UserType;
+}
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private commentService: CommentService) {}
+  constructor(
+    private commentService: CommentService,
+    private messaging: MessagingService,
+  ) {}
 
   @Post(':entity')
   async createComment(
     @Param('entity') entity: string,
     @User() user: UserType,
-    @Body() comment: Comment,
+    @Body() comment: CommentWithUserThatAnswered,
   ): Promise<Comment> {
-    const { id } = user;
+    const userWithAnsweredRoutine = comment.user;
+    const userThatCommented = user;
 
     const parsedComment = {
-      ...comment,
-      userId: id,
+      content: comment.content,
+      userId: userThatCommented.id,
       entity: entity,
     };
 
     const createdComment = await this.commentService.createComment(
       parsedComment,
     );
+
+    const entityDomain = entity.split(':')[0];
+
+    if (entityDomain === 'routine') {
+      this.messaging.sendMessage(
+        'notification-ports.COMMENT-IN-ROUTINE-NOTIFICATION',
+        {
+          userThatCommented,
+          userWithAnsweredRoutine,
+          comment: createdComment,
+        },
+      );
+    }
 
     return createdComment;
   }
@@ -53,6 +75,14 @@ export class CommentsController {
     const allEntityIdPartsAreUuid = otherEntityParts.every((entityPart) =>
       checkIsUuid(entityPart),
     );
+
+    console.log({
+      entity,
+      domainId,
+      isDomainEntityUuid,
+      isInitialEntityPart,
+      allEntityIdPartsAreUuid,
+    });
 
     if (
       !isInitialEntityPart ||
