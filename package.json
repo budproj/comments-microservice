@@ -58,7 +58,7 @@
     "prisma": "^4.5.0",
     "source-map-support": "^0.5.21",
     "testcontainers": "^8.16.0",
-    "ts-auto-mock": "^3.6.2",
+    "ts-auto-mock": "^3.6.4",
     "ts-jest": "28.0.8",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.1",
