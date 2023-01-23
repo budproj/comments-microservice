@@ -1,23 +1,16 @@
-import { connect, NatsConnection, JSONCodec } from 'nats';
 import { randomUUID } from 'node:crypto';
 import { PrismaClient } from '@prisma/client';
-import {
-  getNatsConnectionString,
-  getPostgresConnectionString,
-} from './support-functions/generate-connection-strings';
+import { getPostgresConnectionString } from './support-functions/generate-connection-strings';
+import { request } from './support-functions/nats-mock';
 
 describe('NATS Health Check', () => {
   jest.setTimeout(120_000);
 
-  let natsConnection: NatsConnection;
   let dbConnection: PrismaClient;
-  const jsonCodec = JSONCodec<any>();
 
-  beforeAll(async () => {
-    const natsConStr = getNatsConnectionString(global.__nats__);
+  beforeEach(async () => {
     const postgresConStr = getPostgresConnectionString(global.__postgres__);
 
-    natsConnection = await connect({ servers: natsConStr });
     dbConnection = new PrismaClient({
       datasources: { db: { url: postgresConStr } },
     });
@@ -25,9 +18,7 @@ describe('NATS Health Check', () => {
     await dbConnection.$connect();
   });
 
-  afterAll(async () => {
-    await natsConnection.drain();
-    await natsConnection.close();
+  afterEach(async () => {
     await dbConnection.$disconnect();
   });
 
@@ -37,9 +28,9 @@ describe('NATS Health Check', () => {
     const replyQueue = `reply-${uuid}`;
 
     //Act
-    await natsConnection.request(
+    await request(
       'health-check',
-      jsonCodec.encode({ id: uuid, reply: replyQueue }),
+      { id: uuid, reply: replyQueue },
       {
         timeout: 10_000,
         noMux: true,

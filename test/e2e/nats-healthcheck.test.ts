@@ -1,22 +1,8 @@
-import { connect, NatsConnection, JSONCodec } from 'nats';
 import { randomUUID } from 'node:crypto';
-import { getNatsConnectionString } from './support-functions/generate-connection-strings';
+import { request } from './support-functions/nats-mock';
 
 describe('NATS Health Check', () => {
   jest.setTimeout(120_000);
-
-  let natsConnection: NatsConnection;
-  const jsonCodec = JSONCodec<any>();
-
-  beforeAll(async () => {
-    const natsConnectionString = getNatsConnectionString(global.__nats__);
-    natsConnection = await connect({ servers: natsConnectionString });
-  });
-
-  afterAll(async () => {
-    await natsConnection.drain();
-    await natsConnection.close();
-  });
 
   it('should receive true as response on health check queue', async () => {
     // Arrange
@@ -24,9 +10,9 @@ describe('NATS Health Check', () => {
     const replyQueue = `reply-${uuid}`;
 
     //Act
-    const result = await natsConnection.request(
+    const result = await request<{ data: boolean }>(
       'health-check',
-      jsonCodec.encode({ id: uuid, reply: replyQueue }),
+      { id: uuid, reply: replyQueue },
       {
         timeout: 10_000,
         noMux: true,
@@ -35,7 +21,6 @@ describe('NATS Health Check', () => {
     );
 
     //Assert
-    const { data: response } = jsonCodec.decode(result.data);
-    expect(response).toBe(true);
+    expect(result.data).toBe(true);
   });
 });
