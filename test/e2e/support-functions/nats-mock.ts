@@ -31,7 +31,7 @@ export const listenAndReply = async (
   });
 
   subscription.callback = (error, msg) => {
-    msg.respond(jsonCodec.encode(replyObject));
+    msg.respond(jsonCodec.encode({ data: replyObject }));
   };
 };
 

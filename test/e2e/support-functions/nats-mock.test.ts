@@ -13,5 +13,5 @@ it('should reply to imaginary queue', async () => {
   });
 
   // Assert
-  expect(result).toEqual(expectedResponse);
+  expect(result).toEqual({ data: expectedResponse });
 });

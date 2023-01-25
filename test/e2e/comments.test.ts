@@ -64,27 +64,30 @@ describe('REST Comments Controller', () => {
     expect(dbData[0]).toHaveProperty('content', commentContent);
   });
 
-  it('/comments (GET)', async () => {
+  // it('/comments (GET)', async () => {
+  it('teste', async () => {
     // Arrange
     listenAndReply('core-ports.verify-token', { sub: '1234' });
     listenAndReply('core-ports.get-user-with-teams-by-sub', userMock);
     listenAndReply('core-ports.get-user-companies', userMock.companies);
 
     const entity = `objective:${randomUUID()}`;
-    const comment: Comment = {
+    const comment = {
       id: randomUUID(),
       entity,
       userId: randomUUID(),
       content: 'just a normal comment',
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
 
     // Act
     await dbConnection.comment.create({ data: comment });
-    const result = await httpRequest(url).get(`/comments/${entity}`);
+    const result = await httpRequest(url)
+      .get(`/comments/${entity}`)
+      .set('Authorization', `Bearer ${validJwtToken}`);
 
     // Assert
     expect(result.statusCode).toBe(200);
-    expect(result.body).toEqual(comment);
+    expect(result.body).toEqual([comment]);
   });
 });

@@ -29,15 +29,15 @@ export class UserValidatorMiddleware implements NestMiddleware {
     }
 
     const [_, token] = authHeader.split(' ');
-    const decodedToken = await lastValueFrom<JwtPayload>(
+    const { data: decodedToken } = await lastValueFrom<{ data: JwtPayload }>(
       this.nats.send('core-ports.verify-token', token),
     );
 
-    const user = await lastValueFrom<User>(
+    const { data: user } = await lastValueFrom<{ data: User }>(
       this.nats.send('core-ports.get-user-with-teams-by-sub', decodedToken.sub),
     );
 
-    const userCompanies = await lastValueFrom<Team[]>(
+    const { data: userCompanies } = await lastValueFrom<{ data: Team[] }>(
       this.nats.send('core-ports.get-user-companies', user),
     );
 
