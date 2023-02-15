@@ -1,6 +1,6 @@
+import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import configuration from './config/configuration';
 import { CommentsController } from './controllers/comments/comments.controller';
 import { HealthCheckDBService } from './healthcheck.db.service';
@@ -8,7 +8,7 @@ import { HealthCheckRestController } from './healthcheck.rest.controller';
 import { PrismaService } from './infrastructure/orm/prisma.service';
 import { AppLoggerMiddleware } from './middlewares/route-logger.middleware';
 import { UserValidatorMiddleware } from './middlewares/user-validator.middleware';
-import { NatsController } from './nats.controller';
+import { RabbitMQController } from './rabbitmq.controller';
 import { CommentService } from './services/comments.service';
 
 @Module({
@@ -17,21 +17,21 @@ import { CommentService } from './services/comments.service';
       load: [configuration],
       isGlobal: true,
     }),
-    ClientsModule.registerAsync([
-      {
-        name: 'NATS_SERVICE',
-        imports: [ConfigModule],
-        inject: [ConfigService],
-        useFactory: async (configService: ConfigService) => ({
-          transport: Transport.NATS,
-          options: {
-            servers: [configService.get<string>('natsConnectionString')],
-          },
-        }),
-      },
-    ]),
+    RabbitMQModule.forRootAsync(RabbitMQModule, {
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        exchanges: [{ name: 'bud', type: 'topic' }],
+        uri: configService.get<string>('rabbitmqConnectionString'),
+        enableControllerDiscovery: true,
+      }),
+    }),
   ],
-  controllers: [NatsController, HealthCheckRestController, CommentsController],
+  controllers: [
+    RabbitMQController,
+    HealthCheckRestController,
+    CommentsController,
+  ],
   providers: [HealthCheckDBService, PrismaService, CommentService],
 })
 export class AppModule implements NestModule {

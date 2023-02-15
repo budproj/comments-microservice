@@ -1,15 +1,13 @@
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import {
   Injectable,
   NestMiddleware,
-  Inject,
   HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { Request, Response, NextFunction } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
-import { lastValueFrom } from 'rxjs';
 import { Team } from 'src/types/Team';
 
 import { User } from 'src/types/User';
@@ -18,7 +16,7 @@ import { User } from 'src/types/User';
 export class UserValidatorMiddleware implements NestMiddleware {
   private readonly logger = new Logger(UserValidatorMiddleware.name);
 
-  constructor(@Inject('NATS_SERVICE') private nats: ClientProxy) {}
+  constructor(private readonly rabbitmq: AmqpConnection) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.header('authorization');
@@ -29,17 +27,24 @@ export class UserValidatorMiddleware implements NestMiddleware {
     }
 
     const [_, token] = authHeader.split(' ');
-    const { data: decodedToken } = await lastValueFrom<{ data: JwtPayload }>(
-      this.nats.send('core-ports.verify-token', token),
-    );
 
-    const { data: user } = await lastValueFrom<{ data: User }>(
-      this.nats.send('core-ports.get-user-with-teams-by-sub', decodedToken.sub),
-    );
+    const decodedToken = await this.rabbitmq.request<JwtPayload>({
+      exchange: 'bud',
+      routingKey: 'busines.core-ports.verify-token',
+      payload: token,
+    });
 
-    const { data: userCompanies } = await lastValueFrom<{ data: Team[] }>(
-      this.nats.send('core-ports.get-user-companies', user),
-    );
+    const user = await this.rabbitmq.request<User>({
+      exchange: 'bud',
+      routingKey: 'busines.core-ports.get-user-with-teams-by-sub',
+      payload: decodedToken.sub,
+    });
+
+    const userCompanies = await this.rabbitmq.request<Team[]>({
+      exchange: 'bud',
+      routingKey: 'busines.core-ports.get-user-companies',
+      payload: user,
+    });
 
     req.user = {
       ...user,
