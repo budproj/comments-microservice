@@ -35,7 +35,15 @@ export class RabbitMQController {
     this.client.publish('bud', data.reply, true, { durable: true });
   }
 
-  @RabbitRPC({ queue: 'comments-microservice.comment-count' })
+  @RabbitRPC({
+    exchange: 'bud',
+    queue: 'comments-microservice.comment-count',
+    errorHandler: defaultNackErrorHandler,
+    queueOptions: {
+      deadLetterExchange: 'dead',
+      deadLetterRoutingKey: 'dead',
+    },
+  })
   async countComments(@Payload() entity: Comment['entity']) {
     this.logger.log(
       'New routine notification message to the comment count pattern with data:',
