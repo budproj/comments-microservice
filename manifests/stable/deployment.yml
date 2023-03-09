@@ -42,6 +42,12 @@ spec:
             - name: AUTHZ_ISSUER
               value: https://auth.getbud.co/
 
+            - name: RABBITMQ_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: comments-microservice
+                  key: rabbitmq-connection-string
+
       initContainers:
         - name: comments-microservice-stable-execute-migrations
           image: 904333181156.dkr.ecr.sa-east-1.amazonaws.com/comments-microservice:$ECR_TAG
