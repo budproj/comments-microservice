@@ -13,7 +13,6 @@ import { CommentService } from './services/comments.service';
 export class RabbitMQController {
   constructor(
     private healthCheckDB: HealthCheckDBService,
-    private readonly client: AmqpConnection,
     private comments: CommentService,
   ) {}
 

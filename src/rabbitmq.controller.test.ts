@@ -4,9 +4,8 @@ import { HealthCheckDBService } from './healthcheck.db.service';
 import { RabbitMQController } from './rabbitmq.controller';
 import { CommentService } from './services/comments.service';
 
-describe('NATS Controller', () => {
+describe('RabbitMQ Controller', () => {
   let natsController: RabbitMQController;
-  const emitMock = jest.spyOn(ClientNats.prototype, 'emit');
   const dbHealthCheckPath = jest.fn();
 
   beforeEach(jest.resetAllMocks);
@@ -40,11 +39,10 @@ describe('NATS Controller', () => {
       const data = { id: 'some id', reply: 'testReplyQueue' };
 
       // Act
-      await natsController.onHealthCheck(data);
+      const response = await natsController.onHealthCheck(data);
 
       // Assert
-      expect(emitMock).toBeCalledTimes(1);
-      expect(emitMock).toBeCalledWith('testReplyQueue', true);
+      expect(response).toBe(true);
     });
 
     it('should patch the database with an id', async () => {
