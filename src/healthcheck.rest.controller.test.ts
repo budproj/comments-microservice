@@ -15,16 +15,5 @@ describe('HealthCheckRestController', () => {
       // Assert (Afirmar)
       expect(result).toBe('pong');
     });
-    // it('should not return pong if the data is not ping', async () => {
-    //   // Arrrange (Ajeitar)
-    //   const ping = 'notPing';
-
-    //   // Act (Atuar)
-    //   const result = await healthCheckRestController.pingPong(ping);
-
-    //   // Assert (Afirmar)
-    //   expect(result).not.toBe('pong');
-    //   expect(result).toBe('notPong');
-    // });
   });
 });
