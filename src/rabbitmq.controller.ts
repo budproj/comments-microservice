@@ -22,22 +22,24 @@ export class RabbitMQController {
   @RabbitRPC({
     exchange: 'bud',
     queue: 'comments-microservice.health-check',
+    routingKey: 'comments-microservice.health-check',
     errorHandler: defaultNackErrorHandler,
     queueOptions: {
       deadLetterExchange: 'dead',
       deadLetterRoutingKey: 'dead',
     },
   })
-  async onHealthCheck(@Payload() data: { id: string; reply: string }) {
+  async onHealthCheck(@Payload() data: { id: string }) {
     this.logger.log('healthcheck payload', data);
     await this.healthCheckDB.patch(data.id);
 
-    this.client.publish('bud', data.reply, true, { durable: true });
+    return true;
   }
 
   @RabbitRPC({
     exchange: 'bud',
     queue: 'comments-microservice.comment-count',
+    routingKey: 'comments-microservice.comment-count',
     errorHandler: defaultNackErrorHandler,
     queueOptions: {
       deadLetterExchange: 'dead',
