@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { PrismaClient } from '@prisma/client';
 import { getPostgresConnectionString } from './support-functions/generate-connection-strings';
-import { request } from './support-functions/nats-mock';
+import { publish, request } from './support-functions/rabbitmq-mock';
+import { setTimeout } from 'node:timers/promises';
 
 describe('NATS Health Check', () => {
   jest.setTimeout(120_000);
@@ -28,15 +29,13 @@ describe('NATS Health Check', () => {
     const replyQueue = `reply-${uuid}`;
 
     //Act
-    await request(
-      'health-check',
-      { id: uuid, reply: replyQueue },
-      {
-        timeout: 10_000,
-        noMux: true,
-        reply: replyQueue,
-      },
-    );
+    await publish('comments-microservice.health-check', {
+      id: uuid,
+      reply: replyQueue,
+    });
+
+    await setTimeout(1000); // tech debit: if fleaky, put a listener on the reply queue.
+
     const result = await dbConnection.healthCheck.findMany();
 
     //Assert

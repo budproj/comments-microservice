@@ -4,9 +4,9 @@ import {
 } from './support-functions/generate-connection-strings';
 import { generateValidJwt } from './support-functions/generateJwt';
 import * as httpRequest from 'supertest';
-import { Comment, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { User } from 'src/types/User';
-import { listenAndReply } from './support-functions/nats-mock';
+import { listenAndReply } from './support-functions/rabbitmq-mock';
 import { randomUUID } from 'crypto';
 
 describe('REST Comments Controller', () => {
@@ -14,6 +14,8 @@ describe('REST Comments Controller', () => {
   let url: string;
   let validJwtToken: string;
   let dbConnection: PrismaClient;
+
+  const corePortsPrefix = 'business.core-ports';
 
   const userMock: User = {
     id: '922ef72a-6c3c-4075-926a-3245cdeea75f',
@@ -43,9 +45,10 @@ describe('REST Comments Controller', () => {
 
   it('/comments (POST)', async () => {
     // Arrange
-    listenAndReply('core-ports.verify-token', { sub: '1234' });
-    listenAndReply('core-ports.get-user-with-teams-by-sub', userMock);
-    listenAndReply('core-ports.get-user-companies', userMock.companies);
+    const corePortsPrefix = 'business.core-ports';
+    listenAndReply(`${corePortsPrefix}.verify-token`, { sub: '1234' });
+    listenAndReply(`${corePortsPrefix}.get-user-with-teams-by-sub`, userMock);
+    listenAndReply(`${corePortsPrefix}.get-user-companies`, userMock.companies);
 
     const entity = `objective:${randomUUID()}`;
     const commentContent = 'Comentário do bom';
@@ -64,12 +67,11 @@ describe('REST Comments Controller', () => {
     expect(dbData[0]).toHaveProperty('content', commentContent);
   });
 
-  // it('/comments (GET)', async () => {
-  it('teste', async () => {
+  it('/comments (GET)', async () => {
     // Arrange
-    listenAndReply('core-ports.verify-token', { sub: '1234' });
-    listenAndReply('core-ports.get-user-with-teams-by-sub', userMock);
-    listenAndReply('core-ports.get-user-companies', userMock.companies);
+    listenAndReply(`${corePortsPrefix}.verify-token`, { sub: '1234' });
+    listenAndReply(`${corePortsPrefix}.get-user-with-teams-by-sub`, userMock);
+    listenAndReply(`${corePortsPrefix}.get-user-companies`, userMock.companies);
 
     const entity = `objective:${randomUUID()}`;
     const comment = {

@@ -1,11 +1,11 @@
-import { listenAndReply, request } from './nats-mock';
+import { listenAndReply, request } from './rabbitmq-mock';
 
 jest.setTimeout(120_000);
 
 it('should reply to imaginary queue', async () => {
   // Arrange
   const expectedResponse = { an: 'object' };
-  listenAndReply('odiajsdoaisjdoasidjaosidj', expectedResponse);
+  await listenAndReply('odiajsdoaisjdoasidjaosidj', expectedResponse);
 
   // Act
   const result = await request<{ an: string }>('odiajsdoaisjdoasidjaosidj', {
@@ -13,5 +13,5 @@ it('should reply to imaginary queue', async () => {
   });
 
   // Assert
-  expect(result).toEqual({ data: expectedResponse });
+  expect(result).toEqual(expectedResponse);
 });
