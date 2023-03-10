@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { PrismaClient } from '@prisma/client';
 import { getPostgresConnectionString } from './support-functions/generate-connection-strings';
-import { publish, request } from './support-functions/rabbitmq-mock';
+import { publish } from './support-functions/rabbitmq-mock';
 import { setTimeout } from 'node:timers/promises';
 
 describe('NATS Health Check', () => {

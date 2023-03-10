@@ -1,4 +1,3 @@
-import { isBuffer } from 'node:util';
 import { Channel, Connection, RPCCLient } from 'rabbitmq-client';
 import { getRabbitMQConnectionString } from './generate-connection-strings';
 
