@@ -1,8 +1,4 @@
-import {
-  AmqpConnection,
-  defaultNackErrorHandler,
-  RabbitRPC,
-} from '@golevelup/nestjs-rabbitmq';
+import { defaultNackErrorHandler, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { Controller, Logger } from '@nestjs/common';
 import { Payload } from '@nestjs/microservices';
 import { Comment } from '@prisma/client';
