@@ -6,8 +6,8 @@ export interface Env {
 export const getPostgresConnectionString = (postgresEnv: Env) =>
   `postgresql://comments:changeme@${postgresEnv.host}:${postgresEnv.port}/comments?schema=public`;
 
-export const getNatsConnectionString = (postgresEnv: Env) =>
-  `nats://${postgresEnv.host}:${postgresEnv.port}`;
+export const getRabbitMQConnectionString = (rabbitMQEnv: Env) =>
+  `amqp://guest:guest@${rabbitMQEnv.host}:${rabbitMQEnv.port}`;
 
 export const getRestConnectionString = (apiEnv: Env) =>
   `http://${apiEnv.host}:${apiEnv.port}`;

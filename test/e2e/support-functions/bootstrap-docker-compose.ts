@@ -11,7 +11,6 @@ const waitForText = Wait.forLogMessage;
 let dockerComposeEnvironment: StartedDockerComposeEnvironment;
 
 export const bootstrapDockerCompose = async () => {
-  console.log('passou');
   dockerComposeEnvironment = await new DockerComposeEnvironment(
     composeFilePath,
     'e2e.docker-compose.yml',
@@ -20,10 +19,7 @@ export const bootstrapDockerCompose = async () => {
       'postgres_1',
       waitForText('database system is ready to accept connections'),
     )
-    .withWaitStrategy(
-      'nats_1',
-      waitForText('Listening for client connections on 0.0.0.0:4222'),
-    )
+    .withWaitStrategy('rabbitmq_1', waitForText('Server startup complete'))
     .withWaitStrategy(
       'postgres_1',
       waitForText('database system is ready to accept connections'),
@@ -35,17 +31,21 @@ export const bootstrapDockerCompose = async () => {
     .withWaitStrategy('fake-jwt-server_1', waitForText('-----'))
     .up();
 
-  const [jwtProviderContainer, natsContainer, postgresContainer, apiContainer] =
-    [
-      dockerComposeEnvironment.getContainer('fake-jwt-server'),
-      dockerComposeEnvironment.getContainer('nats'),
-      dockerComposeEnvironment.getContainer('postgres'),
-      dockerComposeEnvironment.getContainer('api'),
-    ];
+  const [
+    jwtProviderContainer,
+    rabbitmqContainer,
+    postgresContainer,
+    apiContainer,
+  ] = [
+    dockerComposeEnvironment.getContainer('fake-jwt-server'),
+    dockerComposeEnvironment.getContainer('rabbitmq'),
+    dockerComposeEnvironment.getContainer('postgres'),
+    dockerComposeEnvironment.getContainer('api'),
+  ];
 
-  global.__nats__ = {
-    host: natsContainer.getHost(),
-    port: natsContainer.getMappedPort(4222),
+  global.__rabbitmq__ = {
+    host: rabbitmqContainer.getHost(),
+    port: rabbitmqContainer.getMappedPort(5672),
   };
 
   global.__postgres__ = {

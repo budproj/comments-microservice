@@ -1,12 +1,11 @@
-import { ClientNats, ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Test } from '@nestjs/testing';
 import { HealthCheckDBService } from './healthcheck.db.service';
-import { NatsController } from './nats.controller';
+import { RabbitMQController } from './rabbitmq.controller';
 import { CommentService } from './services/comments.service';
 
-describe('NATS Controller', () => {
-  let natsController: NatsController;
-  const emitMock = jest.spyOn(ClientNats.prototype, 'emit');
+describe('RabbitMQ Controller', () => {
+  let natsController: RabbitMQController;
   const dbHealthCheckPath = jest.fn();
 
   beforeEach(jest.resetAllMocks);
@@ -22,7 +21,7 @@ describe('NATS Controller', () => {
           { name: 'NATS_SERVICE', transport: Transport.NATS },
         ]),
       ],
-      controllers: [NatsController],
+      controllers: [RabbitMQController],
       providers: [HealthCheckDBService, CommentService],
     })
       .overrideProvider(HealthCheckDBService)
@@ -31,7 +30,7 @@ describe('NATS Controller', () => {
       .useValue(CommentServiceMock)
       .compile();
 
-    natsController = moduleRef.get(NatsController);
+    natsController = moduleRef.get(RabbitMQController);
   });
 
   describe('health-check messages', () => {
@@ -40,11 +39,10 @@ describe('NATS Controller', () => {
       const data = { id: 'some id', reply: 'testReplyQueue' };
 
       // Act
-      await natsController.onHealthCheck(data);
+      const response = await natsController.onHealthCheck(data);
 
       // Assert
-      expect(emitMock).toBeCalledTimes(1);
-      expect(emitMock).toBeCalledWith('testReplyQueue', true);
+      expect(response).toBe(true);
     });
 
     it('should patch the database with an id', async () => {
