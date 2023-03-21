@@ -40,7 +40,7 @@ export class CommentsController {
 
     if (entityDomain === 'routine') {
       this.messaging.sendMessage(
-        'notification-ports.COMMENT-IN-ROUTINE-NOTIFICATION',
+        'business.notification-ports.COMMENT-IN-ROUTINE-NOTIFICATION',
         {
           userThatCommented,
           userWithAnsweredRoutine,
