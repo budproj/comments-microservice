@@ -45,6 +45,7 @@ export class CommentsController {
           userThatCommented,
           userWithAnsweredRoutine,
           comment: createdComment,
+          userId: userThatCommented.id, // needed for generic notification ports structure
         },
       );
     }
