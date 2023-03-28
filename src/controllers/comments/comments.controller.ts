@@ -6,10 +6,6 @@ import { User as UserType } from '../../types/User';
 import { checkIsUuid } from '../../utils/validate-uuid';
 import { MessagingService } from 'src/services/messaging.service';
 
-interface CommentWithUserThatAnswered extends Comment {
-  user?: UserType;
-}
-
 @Controller('comments')
 export class CommentsController {
   constructor(
@@ -21,9 +17,8 @@ export class CommentsController {
   async createComment(
     @Param('entity') entity: string,
     @User() user: UserType,
-    @Body() comment: CommentWithUserThatAnswered,
+    @Body() comment: Comment,
   ): Promise<Comment> {
-    const userWithAnsweredRoutine = comment.user;
     const userThatCommented = user;
 
     const parsedComment = {
@@ -36,14 +31,19 @@ export class CommentsController {
       parsedComment,
     );
 
-    const entityDomain = entity.split(':')[0];
+    const [entityDomain, entityId] = entity.split(':');
 
     if (entityDomain === 'routine') {
-      this.messaging.sendMessage(
-        'business.notification-ports.COMMENT-IN-ROUTINE-NOTIFICATION',
+      const answeredRoutine = await this.messaging.sendMessage(
+        'routines-microservice.get-answer-group-data',
+        { id: entityId },
+      );
+
+      await this.messaging.sendMessage(
+        'business.notification-ports.comment-in-routine-notification',
         {
           userThatCommented,
-          userWithAnsweredRoutine,
+          answeredRoutine,
           comment: createdComment,
           userId: userThatCommented.id, // needed for generic notification ports structure
         },
