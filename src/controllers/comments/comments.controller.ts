@@ -4,10 +4,14 @@ import { CommentService } from '../../services/comments.service';
 import { User } from '../../decorators/user.decorator';
 import { User as UserType } from '../../types/User';
 import { checkIsUuid } from '../../utils/validate-uuid';
+import { MessagingService } from 'src/services/messaging.service';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private commentService: CommentService) {}
+  constructor(
+    private commentService: CommentService,
+    private messaging: MessagingService,
+  ) {}
 
   @Post(':entity')
   async createComment(
@@ -15,17 +19,36 @@ export class CommentsController {
     @User() user: UserType,
     @Body() comment: Comment,
   ): Promise<Comment> {
-    const { id } = user;
+    const userThatCommented = user;
 
     const parsedComment = {
-      ...comment,
-      userId: id,
+      content: comment.content,
+      userId: userThatCommented.id,
       entity: entity,
     };
 
     const createdComment = await this.commentService.createComment(
       parsedComment,
     );
+
+    const [entityDomain, entityId] = entity.split(':');
+
+    if (entityDomain === 'routine') {
+      const answeredRoutine = await this.messaging.sendMessage(
+        'routines-microservice.get-answer-group-data',
+        { id: entityId },
+      );
+
+      await this.messaging.sendMessage(
+        'business.notification-ports.comment-in-routine-notification',
+        {
+          userThatCommented,
+          answeredRoutine,
+          comment: createdComment,
+          userId: userThatCommented.id, // needed for generic notification ports structure
+        },
+      );
+    }
 
     return createdComment;
   }
@@ -53,6 +76,14 @@ export class CommentsController {
     const allEntityIdPartsAreUuid = otherEntityParts.every((entityPart) =>
       checkIsUuid(entityPart),
     );
+
+    console.log({
+      entity,
+      domainId,
+      isDomainEntityUuid,
+      isInitialEntityPart,
+      allEntityIdPartsAreUuid,
+    });
 
     if (
       !isInitialEntityPart ||

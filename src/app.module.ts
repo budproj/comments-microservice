@@ -10,6 +10,7 @@ import { AppLoggerMiddleware } from './middlewares/route-logger.middleware';
 import { UserValidatorMiddleware } from './middlewares/user-validator.middleware';
 import { RabbitMQController } from './rabbitmq.controller';
 import { CommentService } from './services/comments.service';
+import { MessagingService } from './services/messaging.service';
 
 @Module({
   imports: [
@@ -32,7 +33,12 @@ import { CommentService } from './services/comments.service';
     HealthCheckRestController,
     CommentsController,
   ],
-  providers: [HealthCheckDBService, PrismaService, CommentService],
+  providers: [
+    HealthCheckDBService,
+    PrismaService,
+    CommentService,
+    MessagingService,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
