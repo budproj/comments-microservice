@@ -4,5 +4,7 @@ export function checkIsUuid(value: any) {
       value,
     );
 
-  return isUuid;
+  const isObjectId = /^[0-9a-fA-F]{24}$/.test(value);
+
+  return isUuid || isObjectId;
 }

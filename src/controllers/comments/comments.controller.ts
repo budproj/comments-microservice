@@ -50,6 +50,8 @@ export class CommentsController {
       );
     }
 
+    console.log({ createdComment });
+
     return createdComment;
   }
 
@@ -57,7 +59,9 @@ export class CommentsController {
   async getCommentsByEntity(
     @Param('entity') entity: string,
   ): Promise<Comment[]> {
-    const commentsType = ['kr', 'routine', 'objective'];
+    const commentsType = ['kr', 'routine', 'objective', 'task'];
+
+    console.log({ entity });
 
     const entityParts = entity.split(':');
     const entityDomain = entityParts[0];
