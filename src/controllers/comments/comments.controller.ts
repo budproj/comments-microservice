@@ -49,22 +49,15 @@ export class CommentsController {
         },
       );
     } else if (entityDomain === 'task') {
-      const taskThatReceivedComment = await this.messaging.sendMessage(
-        'task-management-microservice.get-task',
-        { id: entityId },
-      );
-      await this.messaging.sendMessage(
-        'business.notification-ports.comment-in-task-notification',
+      this.messaging.sendMessage(
+        'task-management-microservice.comment-in-task',
         {
-          userThatCommented,
-          taskThatReceivedComment,
+          id: entityId,
+          user: userThatCommented,
           comment: createdComment,
-          userId: userThatCommented.id, // needed for generic notification ports structure
         },
       );
     }
-
-    console.log({ createdComment });
 
     return createdComment;
   }
