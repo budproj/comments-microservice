@@ -49,7 +49,7 @@ export class CommentsController {
         },
       );
     } else if (entityDomain === 'task') {
-      this.messaging.sendMessage(
+      this.messaging.postMessage(
         'task-management-microservice.comment-in-task',
         {
           id: entityId,
