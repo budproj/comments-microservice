@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { Comment } from '@prisma/client';
 import { CommentService } from '../../services/comments.service';
 import { User } from '../../decorators/user.decorator';
@@ -61,8 +61,6 @@ export class CommentsController {
   ): Promise<Comment[]> {
     const commentsType = ['kr', 'routine', 'objective', 'task'];
 
-    console.log({ entity });
-
     const entityParts = entity.split(':');
     const entityDomain = entityParts[0];
     const domainId = entityParts[1];
@@ -104,5 +102,11 @@ export class CommentsController {
     });
 
     return comments;
+  }
+
+  @Delete(':id')
+  async deleteCommentById(@Param('id') id: Comment['id']) {
+    const deleteResult = await this.commentService.deleteComment({ id: id });
+    return deleteResult;
   }
 }
