@@ -19,6 +19,10 @@ export class MessagingService {
     });
   }
 
+  postMessage<R>(channel: string, payload: any): void {
+    return this.rabbitmq.publish<R>('bud', channel, payload);
+  }
+
   /**
    * Fire and forget a message to a rabbitmq topic.
    *
