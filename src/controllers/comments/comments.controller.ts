@@ -72,7 +72,7 @@ export class CommentsController {
           },
           task: {
             id: '65e08a748b491e52ee118057',
-            name: 'comment',
+            name: 'comment2',
           },
           taskBoard: {
             _id: '65f83ef2275dbdbe1328502f',
