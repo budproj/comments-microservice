@@ -50,14 +50,17 @@ export class CommentsController {
         },
       );
     } else if (entityDomain === 'task') {
-      this.messaging.postMessage(
-        'task-management-microservice.comment-in-task',
-        {
-          id: entityId,
-          user: userThatCommented,
-          comment: createdComment,
-        },
-      );
+      this.messaging.emit('task-management-microservice.comment-in-task', {
+        content: Buffer.from(
+          JSON.stringify({
+            id: entityId,
+            user: userThatCommented,
+            comment: createdComment,
+          }),
+        ),
+        // fields: {},
+        // properties: {},
+      });
       const notification = {
         messageId: randomUUID(),
         type: 'provingSomething',
