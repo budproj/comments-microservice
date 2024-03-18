@@ -93,7 +93,7 @@ export class CommentsController {
           teamId: '0342b8f6-3a07-4f2b-a3fa-a3a8ca8fa61f',
         },
       };
-      this.messaging.sendMessage(
+      this.messaging.postMessage(
         'notifications-microservice.notification',
         notification,
       ) as any;
