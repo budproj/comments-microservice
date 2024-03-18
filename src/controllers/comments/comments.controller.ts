@@ -5,6 +5,7 @@ import { User } from '../../decorators/user.decorator';
 import { User as UserType } from '../../types/User';
 import { checkIsUuid } from '../../utils/validate-uuid';
 import { MessagingService } from 'src/services/messaging.service';
+import { randomUUID } from 'crypto';
 
 @Controller('comments')
 export class CommentsController {
@@ -57,6 +58,45 @@ export class CommentsController {
           comment: createdComment,
         },
       );
+      const notification = {
+        messageId: randomUUID(),
+        type: 'provingSomething',
+        timestamp: new Date().toISOString(),
+        recipientId: 'auth0|auth0|6243762bdf154e0068d272d7',
+        properties: {
+          sender: {
+            id: 'auth0|auth0|6243762bdf154e0068d272d7',
+            name: 'Igor Omote',
+            picture:
+              'https://s3-sa-east-1.amazonaws.com/business.s3.getbud.co/user/pictures/335cd9ee-e5df-402c-a268-6c7a96ee7801-1657539472265.jpeg',
+          },
+          task: {
+            id: '65e08a748b491e52ee118057',
+            name: 'comment',
+          },
+          taskBoard: {
+            _id: '65f83ef2275dbdbe1328502f',
+            owner: '825112f5-6da7-4d92-a845-79a3ea355fd4',
+            title: 'bom dia sua máquina de construir músculo',
+            author: {
+              type: 'USER',
+              identifier: '825112f5-6da7-4d92-a845-79a3ea355fd4',
+            },
+            status: 'toDo',
+            boardId: '65c6585c4ae33e74c9c49a4d',
+            dueDate: '1112-11-11T03:06:28.000Z',
+            priority: 4,
+            description: '<p>bom dia sua máquina de construir músculo</p>',
+            initialDate: '1112-11-11T03:06:28.000Z',
+            supportTeam: [],
+          },
+          teamId: '0342b8f6-3a07-4f2b-a3fa-a3a8ca8fa61f',
+        },
+      };
+      this.messaging.sendMessage(
+        'notifications-microservice.notification',
+        notification,
+      ) as any;
     }
 
     return createdComment;
