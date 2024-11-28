@@ -29,6 +29,7 @@ describe('Comments Controller', () => {
     userId: userMock.id,
     content: 'Legal',
     createdAt: new Date('2022, 10, 10'),
+    isDeleted: false,
   };
 
   let commentsController: CommentsControllerClass;

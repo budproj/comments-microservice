@@ -36,9 +36,13 @@ export class CommentService {
     return this.prisma.comment.create({ data });
   }
 
-  async deleteComment(where: Prisma.CommentWhereUniqueInput): Promise<Comment> {
-    return this.prisma.comment.delete({
+  async deleteComment(
+    where: Prisma.CommentWhereUniqueInput,
+    data: Prisma.CommentUpdateInput,
+  ): Promise<Comment> {
+    return this.prisma.comment.update({
       where,
+      data,
     });
   }
 

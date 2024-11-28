@@ -106,7 +106,11 @@ export class CommentsController {
 
   @Delete(':id')
   async deleteCommentById(@Param('id') id: Comment['id']) {
-    const deleteResult = await this.commentService.deleteComment({ id: id });
+    const deleteResult = await this.commentService.deleteComment(
+      { id: id },
+      { isDeleted: true },
+    );
+    console.log(deleteResult);
     return deleteResult;
   }
 }
