@@ -19,7 +19,8 @@ model Comment {
   entity    String         
   userId String     @db.Uuid
   content String
-  createdAt DateTime  @default(now())
+  createdAt DateTime  @default(now()) 
+  isDeleted Boolean   @default(false)
 }
 
 // TODO: add models, then run `npx prisma migrate dev --name init`
