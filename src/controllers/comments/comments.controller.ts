@@ -48,9 +48,16 @@ export class CommentsController {
           userId: userThatCommented.id, // needed for generic notification ports structure
         },
       );
+    } else if (entityDomain === 'task') {
+      this.messaging.postMessage(
+        'task-management-microservice.comment-in-task',
+        {
+          id: entityId,
+          user: userThatCommented,
+          comment: createdComment,
+        },
+      );
     }
-
-    console.log({ createdComment });
 
     return createdComment;
   }
